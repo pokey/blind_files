@@ -38,10 +38,6 @@ class IdentifierMapper:
 
 @click.command()
 @click.option(
-    '--dry/--no-dry',
-    default=False,
-)
-@click.option(
     '--key',
     '-k',
     default='key',
@@ -58,37 +54,64 @@ class IdentifierMapper:
     type=click.Path(file_okay=False),
     required=True,
 )
-def main(dry, key, input_dir, output_dir):
+def main(key, input_dir, output_dir):
     """Console script for blind_files."""
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    mapping_path = output_dir / 'mapping.csv'
+    if mapping_path.exists():
+        with open(mapping_path) as mapping_file:
+            mapping_reader = csv.reader(mapping_file)
+            next(mapping_reader)
+            mapping = {
+                original: mapped
+                for original, mapped in mapping_reader
+            }
+    else:
+        mapping = {}
+
     identifier_mapper = IdentifierMapper(key)
 
-    identifiers = set()
+    reverse_mapping = {
+        mapped: original
+        for original, mapped in mapping.items()
+    }
+
+    blind_script = open(output_dir / 'blind.sh', 'a')
+    unblind_script = open(output_dir / 'unblind.sh', 'a')
+
     for file in input_dir.iterdir():
         if DELIMITER not in file.name:
             continue
         file_name = file.name
         index = file_name.index(DELIMITER)
         identifier = file_name[:index]
-        identifiers.add(identifier)
         mapped = identifier_mapper(identifier)
         out_file_name = output_dir / (mapped + file_name[index:])
-        if dry:
-            click.echo(f"mv {file} {out_file_name}")
-        else:
-            file.rename(out_file_name)
+
+        if reverse_mapping.setdefault(mapped, identifier) != identifier:
+            raise Exception(
+                f"Hash collision from '{identifier}' and "
+                f"'{reverse_mapping[mapped]}' to '{mapped}'"
+            )
+        if mapping.setdefault(identifier, mapped) != mapped:
+            raise Exception(
+                f"Inconsistent hash from '{identifier}' to '{mapped}' and "
+                f"'{mapping[identifier]}'"
+            )
+        blind_script.write(f"mv {file} {out_file_name}\n")
+        unblind_script.write(f"mv {out_file_name} {file}\n")
 
     with open(output_dir / 'mapping.csv', 'w') as mapping_file:
         mapping_writer = csv.writer(mapping_file)
         mapping_writer.writerow(['original', 'name'])
 
-        for identifier in sorted(identifiers):
+        for identifier, mapped in sorted(mapping.items()):
             mapping_writer.writerow([
                 identifier,
-                identifier_mapper(identifier)
+                mapped
             ])
 
 
