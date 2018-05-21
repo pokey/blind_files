@@ -101,8 +101,8 @@ def main(key, input_dir, output_dir):
                 f"Inconsistent hash from '{identifier}' to '{mapped}' and "
                 f"'{mapping[identifier]}'"
             )
-        blind_script.write(f"mv {file} {out_file_name}\n")
-        unblind_script.write(f"mv {out_file_name} {file}\n")
+        blind_script.write(f'mv "{file}" "{out_file_name}"\n')
+        unblind_script.write(f'mv "{out_file_name}" "{file}"\n')
 
     with open(output_dir / 'mapping.csv', 'w') as mapping_file:
         mapping_writer = csv.writer(mapping_file)
