@@ -1,16 +1,17 @@
-# Config file for automatic testing at travis-ci.org
-
+deploy:
+  password:
+    secure: B4l3vhMYlYjTVTHrnSc9NAGe1lDgc52466627MZsNncOuM0L62J8Ahom6pATH6/z+MtPmB8m2xJq2DLCi5bqIxSyCcJmcwy/EYW0VYjRKw6bt5bYJHOixHV9rG8oQcO4gTYzgzIMXYJEsnQLAyOByXbETZiI1nmaucEsJoIfk65gqfe292M8z5aahyWej7Wr1ph30GpVM0jvWGQalibPo6YmvgvhU7T2rWXrn+fnTDkU2tFGP22le5kmx8vMXF4BG6t6rL/VgFbc3HETSSoL5KOICJqo8d3xSdEOyWoVoBoUwrsKw5Le2zXacj+oXd0jTrJ1zvUzJQ9uOIplL2tyXjBe+8h+0LeQgllW3WvMd6XFDndSadxttvnJjlzoaFr4HAgKvpu3Tp3Tn2Ju9jQ5pVhqiuBSQ/N9PHTjJ6t+K8cbo9aqSBbOJw00QPdqRUhkG9uQLcjsJy5SSMNlO92C+c3UFPoTAmgoLXrTsV1v6jcL7GTFOs88FL5kMfsA8CAOLKEkEQkUn1irnsdeVkzGzhCMywqqc8R36LmChsEdB5V4++FuMAwjLVlhUqZEwGxau9buVqR4EjPolooPe4ztidUW/b2+V1KFe1ymp7a27Kalxgi4cxqUveY8LmE9xnERGB0M4zBBPAWGDBHopsvt+AHafb0aHOJo0mdzQRQapJA=
+  on:
+    condition: "$TOXENV == py37"
+    repo: pokey/pubmedasync
+    branch: master
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: pokey
+env:
+- TOXENV=py37
+- TOXENV=flake8
+install: pip install -U tox
 language: python
-python:
-  - 3.6
-  - 3.5
-  - 3.4
-  - 2.7
-
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -U tox-travis
-
-# Command to run tests, e.g. python setup.py test
-script: tox
-
-
+python: 3.7
+script: tox -e ${TOXENV}
