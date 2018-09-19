@@ -26,10 +26,10 @@ Installing on OS X
 Running on OS X
 ---------------
 
-This script takes an input dir, and generates a script, `blind.sh`, that can be
-used to blind the files in the input dir.  It also generates a mapping csv,
-`mapping.csv`, that can be used after the user has done the analysis to see
-how the original names map to blinded names.
+This script takes an input dir, and generates a directory containing a script,
+`blind.sh`, that can be used to blind the files in the input dir.  It also
+generates a mapping csv, `mapping.csv`, that can be used after the user has
+done the analysis to see how the original names map to blinded names.
 
 The script has two modes of operation:
 
@@ -39,7 +39,12 @@ all the text before the delimiter in each file name will be replaced.  For
 example:
 
 ```sh
-blind_files -m delimiter -d _foo -i input_dir -o output_dir
+blind_files \
+   --mode delimiter \
+   --delimiter _foo \
+   --input-dir input_dir \
+   --output-dir output_dir \
+   --mapping-dir mapping_dir
 ```
 
 In this case, if `input_dir` contains the following files:
@@ -51,7 +56,7 @@ sample_2_foo.txt
 hello.txt
 ```
 
-Then after running `output_dir/blind.sh`, `output_dir` will contain
+Then after running `mapping_dir/blind.sh`, `output_dir` will contain
 
 ```
 golf_elbow_foo.txt
@@ -60,13 +65,18 @@ co-producer_reputation_foo.txt
 hello.txt
 ```
 
-It will also contain a file `mapping.csv` with the contents:
+In `mapping_dir` you will also find a file `mapping.csv` with the contents:
 
 ```
 original,blinded
 sample_1,golf_elbow
 sample_2,co-producer_reputation
 ```
+
+#### Limitations
+This will only replace names at the top level of the input directory.  If you
+have a more complex nested directory structure, where the identifer names may
+be buried in the directory tree, use identifier list approach described below.
 
 ### Using a list of identifiers
 In the second mode of operation, you can specify list of identifiers that
@@ -81,7 +91,12 @@ group_b_1
 then running
 
 ```sh
-blind_files -m identifiers -t identifiers.txt -i input_dir -o output_dir
+blind_files \
+   --mode identifiers \
+   --identifiers identifiers.txt \
+   --input-dir input_dir \
+   --output-dir output_dir \
+   --mapping-dir mapping_dir
 ```
 
 In this case, if `input_dir` contains the following files:
@@ -92,7 +107,7 @@ group_b_1/group_b_1/foo.txt
 hello.txt
 ```
 
-Then after running `output_dir/blind.sh`, `output_dir` will contain
+Then after running `mapping_dir/blind.sh`, `output_dir` will contain
 
 ```
 head_bottle/head_bottle/foo.txt
@@ -100,7 +115,7 @@ eponym_curtain/eponym_curtain/foo.txt
 hello.txt
 ```
 
-It will also contain a file `mapping.csv` with the contents:
+In `mapping_dir` you will also find a file `mapping.csv` with the contents:
 
 ```
 original,blinded

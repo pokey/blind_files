@@ -10,7 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from filecmp import cmpfiles, dircmp
+from filecmp import cmp, cmpfiles, dircmp
 from pathlib import Path
 from shutil import copytree
 from traceback import print_tb
@@ -39,6 +39,7 @@ class TestBlind_files(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             output_dir = temp_dir / 'output_dir'
+            mapping_dir = temp_dir / 'mapping_dir'
             input_dir = temp_dir / 'input_dir'
             copytree(input_fixture, input_dir)
 
@@ -47,6 +48,8 @@ class TestBlind_files(unittest.TestCase):
                 str(input_dir),
                 '--output-dir',
                 str(output_dir),
+                '--mapping-dir',
+                str(mapping_dir),
             ])
 
             if result.exit_code != 0:
@@ -56,14 +59,13 @@ class TestBlind_files(unittest.TestCase):
 
             assert result.exit_code == 0
 
-            blind_sh = output_dir / 'blind.sh'
-            unblind_sh = output_dir / 'unblind.sh'
+            blind_sh = mapping_dir / 'blind.sh'
+            unblind_sh = mapping_dir / 'unblind.sh'
 
             subprocess.check_call(['bash', str(blind_sh)])
             self.check_dirs_equal(
                 gold_dir,
                 output_dir,
-                ignore=['blind.sh', 'unblind.sh'],
             )
 
             subprocess.check_call(['bash', str(unblind_sh)])
@@ -72,8 +74,14 @@ class TestBlind_files(unittest.TestCase):
                 input_dir,
             )
 
-    def check_dirs_equal(self, dir1, dir2, ignore=[]):
-        diff = dircmp(dir1, dir2, ignore=ignore)
+            assert_that(cmp(
+                fixture_dir / 'gold-mapping.csv',
+                mapping_dir / 'mapping.csv',
+                shallow=False,
+            ), is_(True))
+
+    def check_dirs_equal(self, dir1, dir2):
+        diff = dircmp(dir1, dir2)
 
         assert_that(diff.left_only, is_(empty()))
         assert_that(diff.right_only, is_(empty()))
@@ -81,7 +89,12 @@ class TestBlind_files(unittest.TestCase):
         assert_that(diff.diff_files, is_(empty()))
         assert_that(diff.funny_files, is_(empty()))
 
-        match, mismatch, errors = cmpfiles(dir1, dir2, diff.common_files)
+        match, mismatch, errors = cmpfiles(
+            dir1,
+            dir2,
+            diff.common_files,
+            shallow=False,
+        )
         assert_that(mismatch, is_(empty()))
         assert_that(errors, is_(empty()))
 

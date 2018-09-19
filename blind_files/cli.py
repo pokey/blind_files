@@ -9,31 +9,14 @@ nounlist from http://www.desiquintans.com/downloads/nounlist/nounlist.txt
 
 import csv
 import sys
-from hashlib import blake2b
-from itertools import permutations, product
+from itertools import permutations
 from pathlib import Path
 
 import click
 
 from blind_files.aho_corasick_path_generator import AhoCorasickPathGenerator
 from blind_files.delimiter_path_generator import DelimiterPathGenerator
-
-
-class IdentifierMapper:
-    def __init__(self, key):
-        self.key = key
-        nouns = [line.strip() for line in open('nounlist.txt')][:4096]
-        self.noun_pairs = list(product(nouns, repeat=2))
-
-    def __call__(self, identifier):
-        hash_value = blake2b(
-            identifier.encode('utf-8'),
-            digest_size=3,
-            key=self.key.encode(),
-        ).digest()
-        index = int.from_bytes(hash_value, byteorder='big')
-        noun_pair = self.noun_pairs[index]
-        return '_'.join(noun_pair)
+from blind_files.identifier_mapper import IdentifierMapper
 
 
 @click.command()
@@ -55,8 +38,14 @@ class IdentifierMapper:
     required=True,
 )
 @click.option(
-    '--mode',
+    "--mapping-dir",
     '-m',
+    type=click.Path(file_okay=False),
+    required=True,
+)
+@click.option(
+    '--mode',
+    '-x',
     required=True,
     type=click.Choice(['identifiers', 'delimiter']),
     help=(
@@ -75,11 +64,19 @@ class IdentifierMapper:
     type=click.File('r'),
     default='-',
 )
-def main(key, input_dir, output_dir, mode, delimiter, identifiers):
-    """Console script for blind_files."""
+def main(key,
+         input_dir,
+         output_dir,
+         mapping_dir,
+         mode,
+         delimiter,
+         identifiers):
+    """Generate a bash script and mapping to blind files."""
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    mapping_dir = Path(mapping_dir)
+    mapping_dir.mkdir(parents=True, exist_ok=True)
 
     if mode == 'identifiers':
         identifiers = [identifier.strip() for identifier in identifiers]
@@ -94,7 +91,7 @@ def main(key, input_dir, output_dir, mode, delimiter, identifiers):
         if not delimiter:
             raise click.UsageException("Must specify a delimiter")
 
-    mapping_path = output_dir / 'mapping.csv'
+    mapping_path = mapping_dir / 'mapping.csv'
     if mapping_path.exists():
         with open(mapping_path) as mapping_file:
             mapping_reader = csv.reader(mapping_file)
@@ -141,13 +138,13 @@ def main(key, input_dir, output_dir, mode, delimiter, identifiers):
                 f"'{mapping[identifier]}'"
             )
 
-    with open(output_dir / 'blind.sh', 'a') as out:
+    with open(mapping_dir / 'blind.sh', 'a') as out:
         out.write(path_generator.init_lines)
         out.write(blind_script)
-    with open(output_dir / 'unblind.sh', 'a') as out:
+    with open(mapping_dir / 'unblind.sh', 'a') as out:
         out.write(unblind_script)
 
-    with open(output_dir / 'mapping.csv', 'w') as mapping_file:
+    with open(mapping_dir / 'mapping.csv', 'w') as mapping_file:
         mapping_writer = csv.writer(mapping_file)
         mapping_writer.writerow(['original', 'blinded'])
 
