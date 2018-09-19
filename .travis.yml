@@ -2,17 +2,16 @@ deploy:
   password:
     secure: CZhInr0G+/aWWNqn2C+eXc6KP61PRrnr0OxAeauh3I+x33uPQZ0707Y+mBphBCZ+9xDCmJxambBI78nGhWUmcKQ/5hnNZWhUXXxjbyCTrn/v+qu+aVtif88CL983/U/EV5wJPeZTCMaxFp4qu+HYimSEaPnFri/B0UFAN0+GFY1qlPR/8dG+KsU0V5Fy5coSNp7Kh5KzErAO5waHowEgqaqjDnRr0OY9b9S8+KT/d1LYtBUXnk/AVlZKS1DfRABPa8O3xiA8GOFRCz5hzZtOygm7nOUR5jhT6K1j3szPkvoMpAAux3ta1WQxufSrZKpSlilNeP9T1P7VF2Kh7jlNxETJK4g0oPJQnCJHre9A0pceJsazb2168bmk995C5yKYB3Y77AYO7l3x1khdQXpTP8vgnIKuCVGWCt6Pq+p5/+M0YSJY32RRpa2H5b/5mbQ0CGmd7NatwsovLAqKQnNN51sPousYUcCpw/8aKBUNypmv1lTIxkjH0c0z44i/SAlYQnwVf+LJ1ymxesGZKJmgjSym7BGLLA2HHkfM38bSnn4Ap84DJ35PguLvZ+14mSjqts+ym5RmDbQEC7ea2LzqzjyHbyd2cdhe1IiWuNXyvH8vaQcQ9c6gE4NU9DQ6nFt4Z4PK6lXiQLkypNV3Xw4s+dTr+A8xy7EvSveBgOydw2k=
   on:
-    condition: "$TOXENV == py37"
+    condition: "$TOXENV == py36"
     repo: pokey/pubmedasync
     branch: master
   provider: pypi
   distributions: sdist bdist_wheel
   user: pokey
 env:
-- TOXENV=py37
+- TOXENV=py36
 - TOXENV=flake8
 install: pip install -U tox
 language: python
-python: 3.7
-dist: xenial
+python: 3.6
 script: tox -e ${TOXENV}
