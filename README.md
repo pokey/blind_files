@@ -17,8 +17,8 @@ Installing
 
 Run `pip3 install blind_files`.
 
-Running on OS X
----------------
+Running
+-------
 
 This script takes an input dir, and generates a directory containing a script,
 `blind.sh`, that can be used to blind the files in the input dir.  It also
@@ -121,6 +121,12 @@ group_b_1,eponym_curtain
 No identifier can be a substring of any other identifier.  For example, it is
 not allowed to have identifiers `sample_1` and `sample_11`.  However,
 `sample_01` and `sample_11` would be fine.
+
+General limitations
+-------------------
+- This script should work on any platform, but has only been tested on Mac OS.
+- This script should handle symlinks by simply moving the symlink, without
+  following it, but this behavior has not been tested.
 
 Credits
 -------
