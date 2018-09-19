@@ -3,24 +3,28 @@
 
 """The setup script."""
 
+from os import path
+
 from setuptools import find_packages, setup
 
 
-with open('README.md') as readme_file:
-    readme = readme_file.read()
-
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
-
-requirements = ['Click>=6.0', ]
+requirements = [
+    'Click>=6.0',
+    "pyahocorasick>=1.1.8",
+]
 
 setup_requirements = [
-    "pyahocorasick>=1.1.8",
 ]
 
 test_requirements = [
     'pyhamcrest>=1.9.0',
 ]
+
+
+# read the contents of your README file
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     author="Pokey Rule",
@@ -33,6 +37,8 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     description="Relabel files in order to work on them blind",
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     entry_points={
         'console_scripts': [
             'blind_files=blind_files.cli:main',
@@ -40,7 +46,6 @@ setup(
     },
     install_requires=requirements,
     license="MIT license",
-    long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='blind_files',
     name='blind_files',
@@ -49,6 +54,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/pokey/blind_files',
-    version='0.2.1',
+    version='0.2.2',
     zip_safe=False,
 )

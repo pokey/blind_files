@@ -12,16 +12,10 @@ new file names do not reveal which group the samples belong to.  It will also
 generate a mapping file to indicate how the new files map to the original
 files.
 
-Installing on OS X
-------------------
+Installing
+----------
 
-1. Install [Homebrew](http://brew.sh/)
-1. From a terminal, run
-
-   ```
-   brew install python3
-   pip3 install -e .
-   ```
+Run `pip3 install blind_files`.
 
 Running on OS X
 ---------------
