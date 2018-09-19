@@ -1,3 +1,6 @@
+from os.path import abspath
+
+
 class DelimiterPathGenerator:
     def __init__(self, identifier_mapper, delimiter):
         self.identifier_mapper = identifier_mapper
@@ -18,6 +21,6 @@ class DelimiterPathGenerator:
                 mapped_file_name = file_name
 
             yield (
-                file.resolve(),
-                (output_dir / mapped_file_name).resolve(),
+                abspath(file),
+                abspath(output_dir / mapped_file_name),
             )

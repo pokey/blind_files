@@ -1,5 +1,5 @@
 import os
-from pathlib import Path
+from os.path import abspath
 
 from ahocorasick import Automaton
 
@@ -35,10 +35,10 @@ class AhoCorasickPathGenerator:
                     start=input_dir,
                 )
                 dest_file_name = output_dir / self.blind_path(relpath)
-                self.dest_dirs.add(dest_file_name.parent.resolve())
+                self.dest_dirs.add(abspath(dest_file_name.parent))
                 yield (
-                    Path(source_file_name).resolve(),
-                    dest_file_name.resolve(),
+                    abspath(source_file_name),
+                    abspath(dest_file_name),
                 )
 
     @property
