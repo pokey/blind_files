@@ -15,8 +15,8 @@ from pathlib import Path
 
 import click
 
-
-DELIMITER = '_R3D'
+from blind_files.aho_corasick_path_generator import AhoCorasickPathGenerator
+from blind_files.delimiter_path_generator import DelimiterPathGenerator
 
 
 class IdentifierMapper:
@@ -54,11 +54,38 @@ class IdentifierMapper:
     type=click.Path(file_okay=False),
     required=True,
 )
-def main(key, input_dir, output_dir):
+@click.option(
+    '--mode',
+    '-m',
+    required=True,
+    type=click.Choice(['identifiers', 'delimiter']),
+    help=(
+        "Whether to recursively replace a fixed set of identifiers, or to "
+        "replace all text before some delimiter in a flat set of files."
+    )
+)
+@click.option(
+    '--delimiter',
+    '-d',
+    default=None,
+)
+@click.option(
+    '--identifiers',
+    '-t',
+    type=click.File('r'),
+    default='-',
+)
+def main(key, input_dir, output_dir, mode, delimiter, identifiers):
     """Console script for blind_files."""
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    if mode == 'identifiers':
+        identifiers = [identifier.strip() for identifier in identifiers]
+    elif mode == 'delimiter':
+        if not delimiter:
+            raise click.UsageException("Must specify a delimiter")
 
     mapping_path = output_dir / 'mapping.csv'
     if mapping_path.exists():
@@ -79,18 +106,23 @@ def main(key, input_dir, output_dir):
         for original, mapped in mapping.items()
     }
 
-    blind_script = open(output_dir / 'blind.sh', 'a')
-    unblind_script = open(output_dir / 'unblind.sh', 'a')
+    blind_script = ''
+    unblind_script = ''
 
-    for file in input_dir.iterdir():
-        if DELIMITER not in file.name:
-            continue
-        file_name = file.name
-        index = file_name.index(DELIMITER)
-        identifier = file_name[:index]
+    if mode == 'delimiter':
+        path_generator = DelimiterPathGenerator(identifier_mapper, delimiter)
+    else:
+        path_generator = AhoCorasickPathGenerator(
+            identifier_mapper,
+            identifiers
+        )
+
+    for source_path, dest_path in path_generator(input_dir, output_dir):
+        blind_script += f'mv "{source_path}" "{dest_path}"\n'
+        unblind_script += f'mv "{dest_path}" "{source_path}"\n'
+
+    for identifier in path_generator.identifiers:
         mapped = identifier_mapper(identifier)
-        out_file_name = output_dir / (mapped + file_name[index:])
-
         if reverse_mapping.setdefault(mapped, identifier) != identifier:
             raise Exception(
                 f"Hash collision from '{identifier}' and "
@@ -101,12 +133,16 @@ def main(key, input_dir, output_dir):
                 f"Inconsistent hash from '{identifier}' to '{mapped}' and "
                 f"'{mapping[identifier]}'"
             )
-        blind_script.write(f'mv "{file}" "{out_file_name}"\n')
-        unblind_script.write(f'mv "{out_file_name}" "{file}"\n')
+
+    with open(output_dir / 'blind.sh', 'a') as out:
+        out.write(path_generator.init_lines)
+        out.write(blind_script)
+    with open(output_dir / 'unblind.sh', 'a') as out:
+        out.write(unblind_script)
 
     with open(output_dir / 'mapping.csv', 'w') as mapping_file:
         mapping_writer = csv.writer(mapping_file)
-        mapping_writer.writerow(['original', 'name'])
+        mapping_writer.writerow(['original', 'blinded'])
 
         for identifier, mapped in sorted(mapping.items()):
             mapping_writer.writerow([

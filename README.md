@@ -17,18 +17,37 @@ Installing on OS X
 Running on OS X
 ---------------
 
-Run eg
+This script has two modes of operation:
+
+Using a delimiter
+=================
+In the first mode of operation, you can specify a delimiter to use such that
+all the text before the delimiter in each file name will be replaced.  For
+example:
 
 ```sh
-blind_files -i /Volumes/Caswell/DeltaVision/MSAI.4.18/HCT116_2 \
-            -o /Volumes/Caswell/DeltaVision/MSAI.4.18/HCT116_2.randomized
+blind_files -m delimiter -d _foo -i input_dir -o output_dir
 ```
+
+In this case, if `input_dir` contains the following files:
+
+```
+sample_1_foo.txt
+sample_1_foo-bar.csv
+hello.txt
+```
+
+Then `output_dir` will contain
+
+```
+
+
 
 This generates a `mapping.csv` file as well as `blind.sh` to blind and
 `unblind.sh` to unblind.  So you'll likely want to immediately run
 
 ```sh
-bash /Volumes/Caswell/DeltaVision/MSAI.4.18/HCT116_2.randomized/blind.sh
+bash output_dir/blind.sh
 ```
 
 Credits

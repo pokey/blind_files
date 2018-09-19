@@ -3,9 +3,10 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-with open('README.rst') as readme_file:
+
+with open('README.md') as readme_file:
     readme = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
@@ -13,9 +14,13 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['Click>=6.0', ]
 
-setup_requirements = [ ]
+setup_requirements = [
+    "pyahocorasick>=1.1.8",
+]
 
-test_requirements = [ ]
+test_requirements = [
+    'pyhamcrest>=1.9.0',
+]
 
 setup(
     author="Pokey Rule",
