@@ -24,6 +24,10 @@ from blind_files.identifier_mapper import IdentifierMapper
     '--key',
     '-k',
     default='key',
+    help=(
+        "Key for hash algorithm.  Can be any string.  Different keys will "
+        "produce different mappings."
+    ),
 )
 @click.option(
     "--input-dir",
@@ -42,6 +46,7 @@ from blind_files.identifier_mapper import IdentifierMapper
     '-m',
     type=click.Path(file_okay=False),
     required=True,
+    help="Directory to store the mapping csv and blind / unblind scripts.",
 )
 @click.option(
     '--mode',
@@ -63,6 +68,7 @@ from blind_files.identifier_mapper import IdentifierMapper
     '-t',
     type=click.File('r'),
     default='-',
+    help="The identifiers to be blinded when they occur in any path.",
 )
 def main(key,
          input_dir,
@@ -71,7 +77,7 @@ def main(key,
          mode,
          delimiter,
          identifiers):
-    """Generate a bash script and mapping to blind files."""
+    """Generate a mapping and bash script to blind files."""
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
