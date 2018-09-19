@@ -14,4 +14,5 @@ env:
 install: pip install -U tox
 language: python
 python: 3.7
+dist: xenial
 script: tox -e ${TOXENV}
