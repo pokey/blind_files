@@ -8,7 +8,7 @@ SECTION=minor
 NEW_VERSION=$(bumpversion --dry-run --list $SECTION | \
                  grep new_version | sed -r s,"^.*=",,)
 git flow release start v$NEW_VERSION
-bumpversion $SECTION
+bumpversion --no-tag $SECTION
 git flow release publish
 git flow release finish
 git checkout master
