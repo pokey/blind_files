@@ -108,6 +108,11 @@ group_a_1,head_bottle
 group_b_1,eponym_curtain
 ```
 
+#### Limitations
+No identifier can be a substring of any other identifier.  For example, it is
+not allowed to have identifiers `sample_1` and `sample_11`.  However,
+`sample_01` and `sample_11` would be fine.
+
 Credits
 -------
 This package was created with

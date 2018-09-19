@@ -10,7 +10,7 @@ nounlist from http://www.desiquintans.com/downloads/nounlist/nounlist.txt
 import csv
 import sys
 from hashlib import blake2b
-from itertools import product
+from itertools import permutations, product
 from pathlib import Path
 
 import click
@@ -83,6 +83,13 @@ def main(key, input_dir, output_dir, mode, delimiter, identifiers):
 
     if mode == 'identifiers':
         identifiers = [identifier.strip() for identifier in identifiers]
+
+        for identifier1, identifier2 in permutations(identifiers, 2):
+            if identifier1 in identifier2:
+                raise click.UsageException(
+                    f"{identifier1} is a substring of {identifier2}"
+                )
+
     elif mode == 'delimiter':
         if not delimiter:
             raise click.UsageException("Must specify a delimiter")

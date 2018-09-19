@@ -122,3 +122,29 @@ class TestBlind_files(unittest.TestCase):
             str(fixture_dir / 'identifiers.txt'),
         ]
         self.check_cli_command(runner, fixture_dir, args)
+
+    def test_substring_identifiers(self):
+        runner = CliRunner()
+        fixture_dir = (
+            Path(os.path.dirname(__file__))
+            / 'fixtures'
+            / 'identifiers-substring-test'
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir = Path(temp_dir)
+            output_dir = temp_dir / 'output_dir'
+            input_dir = temp_dir / 'input_dir'
+            input_dir.mkdir()
+
+            result = runner.invoke(cli.main, [
+                '--mode',
+                'identifiers',
+                '--identifiers',
+                str(fixture_dir / 'identifiers.txt'),
+                '--input-dir',
+                str(input_dir),
+                '--output-dir',
+                str(output_dir),
+            ])
+
+            assert result.exit_code != 0
