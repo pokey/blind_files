@@ -1,7 +1,16 @@
 Blind files
 ===========
 
-Generates a mapping from file names to blind but memorable file names.
+Generates a mapping from file names to blind but memorable file names.  This
+script assumes that you have a directory that contains files and / or
+subdirectories with samples from an experiment.  The names of these files and
+directories reveal which group the samples belong to, but the contents of the
+files do not.
+
+The script will move these files to a new directory, renaming them so that the
+new file names do not reveal which group the samples belong to.  It will also
+generate a mapping file to indicate how the new files map to the original
+files.
 
 Installing on OS X
 ------------------
@@ -17,10 +26,14 @@ Installing on OS X
 Running on OS X
 ---------------
 
-This script has two modes of operation:
+This script takes an input dir, and generates a script, `blind.sh`, that can be
+used to blind the files in the input dir.  It also generates a mapping csv,
+`mapping.csv`, that can be used after the user has done the analysis to see
+how the original names map to blinded names.
 
-Using a delimiter
-=================
+The script has two modes of operation:
+
+### Using a delimiter
 In the first mode of operation, you can specify a delimiter to use such that
 all the text before the delimiter in each file name will be replaced.  For
 example:
@@ -34,20 +47,65 @@ In this case, if `input_dir` contains the following files:
 ```
 sample_1_foo.txt
 sample_1_foo-bar.csv
+sample_2_foo.txt
 hello.txt
 ```
 
-Then `output_dir` will contain
+Then after running `output_dir/blind.sh`, `output_dir` will contain
 
 ```
+golf_elbow_foo.txt
+golf_elbow_foo-bar.csv
+co-producer_reputation_foo.txt
+hello.txt
+```
 
+It will also contain a file `mapping.csv` with the contents:
 
+```
+original,blinded
+sample_1,golf_elbow
+sample_2,co-producer_reputation
+```
 
-This generates a `mapping.csv` file as well as `blind.sh` to blind and
-`unblind.sh` to unblind.  So you'll likely want to immediately run
+### Using a list of identifiers
+In the second mode of operation, you can specify list of identifiers that
+should be blinded whenever they are encountered in the input directory tree.
+For example, if `identifiers.txt` contains the following:
+
+```
+group_a_1
+group_b_1
+```
+
+then running
 
 ```sh
-bash output_dir/blind.sh
+blind_files -m identifiers -t identifiers.txt -i input_dir -o output_dir
+```
+
+In this case, if `input_dir` contains the following files:
+
+```
+group_a_1/group_a_1/foo.txt
+group_b_1/group_b_1/foo.txt
+hello.txt
+```
+
+Then after running `output_dir/blind.sh`, `output_dir` will contain
+
+```
+head_bottle/head_bottle/foo.txt
+eponym_curtain/eponym_curtain/foo.txt
+hello.txt
+```
+
+It will also contain a file `mapping.csv` with the contents:
+
+```
+original,blinded
+group_a_1,head_bottle
+group_b_1,eponym_curtain
 ```
 
 Credits
