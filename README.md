@@ -13,7 +13,11 @@ files.
 
 ## Installing
 
-Run `pip3 install blind_files`.
+### Using [pipx](https://pypa.github.io/pipx/)
+
+```sh
+pipx install blind_files
+```
 
 ## Running
 
@@ -31,7 +35,7 @@ all the text before the delimiter in each file name will be replaced. For
 example:
 
 ```sh
-blind_files \
+blind-files \
    --mode delimiter \
    --delimiter _foo \
    --input-dir input_dir \
@@ -85,7 +89,7 @@ group_b_1
 then running
 
 ```sh
-blind_files \
+blind-files \
    --mode identifiers \
    --identifiers identifiers.txt \
    --input-dir input_dir \

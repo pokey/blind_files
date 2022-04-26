@@ -64,11 +64,11 @@ Ready to contribute? Here's how to set up `blind_files` for local development.
 
     $ git clone git@github.com:your_name_here/blind_files.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper and poetry installed, this is how you set up your fork for local development::
 
     $ mkvirtualenv blind_files
     $ cd blind_files/
-    $ python setup.py develop
+    $ poetry install
 
 4. Create a branch for local development::
 
