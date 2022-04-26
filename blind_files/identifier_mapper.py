@@ -1,11 +1,20 @@
 from hashlib import blake2b
 from itertools import product
+from pkgutil import get_data
 
+
+def load_noun_list():
+    data = get_data("blind_files", "data/nounlist.txt")
+
+    if data is None:
+        raise Exception("Couldn't find noun list")
+
+    return [line.strip() for line in data.decode("utf-8").splitlines()]
 
 class IdentifierMapper:
     def __init__(self, key):
         self.key = key
-        nouns = [line.strip() for line in open('nounlist.txt')][:4096]
+        nouns = load_noun_list()[:4096]
         self.noun_pairs = list(product(nouns, repeat=2))
 
     def __call__(self, identifier):
