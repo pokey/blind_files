@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "blind_files"
-version = "0.2.5"
+version = "0.2.6"
 description = "Relabel files in order to work on them blind"
 authors = ["Pokey Rule <755842+pokey@users.noreply.github.com>"]
 license = "MIT"
