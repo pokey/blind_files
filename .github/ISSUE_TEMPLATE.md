@@ -1,6 +1,6 @@
-* Blind Files version:
-* Python version:
-* Operating System:
+- Blind Files version:
+- Python version:
+- Operating System:
 
 ### Description
 

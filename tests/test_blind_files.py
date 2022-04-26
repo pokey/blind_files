@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """Tests for `blind_files` package."""
 
@@ -27,30 +26,34 @@ class TestBlind_files(unittest.TestCase):
     def test_help(self):
         """Test the CLI."""
         runner = CliRunner()
-        help_result = runner.invoke(cli.main, ['--help'])
+        help_result = runner.invoke(cli.main, ["--help"])
         assert help_result.exit_code == 0
-        assert 'Show this message and exit.' in help_result.output
+        assert "Show this message and exit." in help_result.output
 
     def check_cli_command(self, runner, fixture_dir, args):
         logging.info(f"Running command: blind_files {' '.join(args)}")
 
-        input_fixture = fixture_dir / 'input'
-        gold_dir = fixture_dir / 'gold-output'
+        input_fixture = fixture_dir / "input"
+        gold_dir = fixture_dir / "gold-output"
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
-            output_dir = temp_dir / 'output_dir'
-            mapping_dir = temp_dir / 'mapping_dir'
-            input_dir = temp_dir / 'input_dir'
+            output_dir = temp_dir / "output_dir"
+            mapping_dir = temp_dir / "mapping_dir"
+            input_dir = temp_dir / "input_dir"
             copytree(input_fixture, input_dir)
 
-            result = runner.invoke(cli.main, args + [
-                '--input-dir',
-                str(input_dir),
-                '--output-dir',
-                str(output_dir),
-                '--mapping-dir',
-                str(mapping_dir),
-            ])
+            result = runner.invoke(
+                cli.main,
+                args
+                + [
+                    "--input-dir",
+                    str(input_dir),
+                    "--output-dir",
+                    str(output_dir),
+                    "--mapping-dir",
+                    str(mapping_dir),
+                ],
+            )
 
             if result.exit_code != 0:
                 sys.stdout.write(result.output)
@@ -59,26 +62,29 @@ class TestBlind_files(unittest.TestCase):
 
             assert result.exit_code == 0
 
-            blind_sh = mapping_dir / 'blind.sh'
-            unblind_sh = mapping_dir / 'unblind.sh'
+            blind_sh = mapping_dir / "blind.sh"
+            unblind_sh = mapping_dir / "unblind.sh"
 
-            subprocess.check_call(['bash', str(blind_sh)])
+            subprocess.check_call(["bash", str(blind_sh)])
             self.check_dirs_equal(
                 gold_dir,
                 output_dir,
             )
 
-            subprocess.check_call(['bash', str(unblind_sh)])
+            subprocess.check_call(["bash", str(unblind_sh)])
             self.check_dirs_equal(
                 input_fixture,
                 input_dir,
             )
 
-            assert_that(cmp(
-                fixture_dir / 'gold-mapping.csv',
-                mapping_dir / 'mapping.csv',
-                shallow=False,
-            ), is_(True))
+            assert_that(
+                cmp(
+                    fixture_dir / "gold-mapping.csv",
+                    mapping_dir / "mapping.csv",
+                    shallow=False,
+                ),
+                is_(True),
+            )
 
     def check_dirs_equal(self, dir1, dir2):
         diff = dircmp(dir1, dir2)
@@ -107,57 +113,50 @@ class TestBlind_files(unittest.TestCase):
     def test_delimiter(self):
         runner = CliRunner()
 
-        fixture_dir = (
-            Path(os.path.dirname(__file__))
-            / 'fixtures'
-            / 'delimiter-test'
-        )
+        fixture_dir = Path(os.path.dirname(__file__)) / "fixtures" / "delimiter-test"
         args = [
-            '--mode',
-            'delimiter',
-            '--delimiter',
-            '_foo',
+            "--mode",
+            "delimiter",
+            "--delimiter",
+            "_foo",
         ]
         self.check_cli_command(runner, fixture_dir, args)
 
     def test_identifiers(self):
         runner = CliRunner()
 
-        fixture_dir = (
-            Path(os.path.dirname(__file__))
-            / 'fixtures'
-            / 'identifiers-test'
-        )
+        fixture_dir = Path(os.path.dirname(__file__)) / "fixtures" / "identifiers-test"
         args = [
-            '--mode',
-            'identifiers',
-            '--identifiers',
-            str(fixture_dir / 'identifiers.txt'),
+            "--mode",
+            "identifiers",
+            "--identifiers",
+            str(fixture_dir / "identifiers.txt"),
         ]
         self.check_cli_command(runner, fixture_dir, args)
 
     def test_substring_identifiers(self):
         runner = CliRunner()
         fixture_dir = (
-            Path(os.path.dirname(__file__))
-            / 'fixtures'
-            / 'identifiers-substring-test'
+            Path(os.path.dirname(__file__)) / "fixtures" / "identifiers-substring-test"
         )
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
-            output_dir = temp_dir / 'output_dir'
-            input_dir = temp_dir / 'input_dir'
+            output_dir = temp_dir / "output_dir"
+            input_dir = temp_dir / "input_dir"
             input_dir.mkdir()
 
-            result = runner.invoke(cli.main, [
-                '--mode',
-                'identifiers',
-                '--identifiers',
-                str(fixture_dir / 'identifiers.txt'),
-                '--input-dir',
-                str(input_dir),
-                '--output-dir',
-                str(output_dir),
-            ])
+            result = runner.invoke(
+                cli.main,
+                [
+                    "--mode",
+                    "identifiers",
+                    "--identifiers",
+                    str(fixture_dir / "identifiers.txt"),
+                    "--input-dir",
+                    str(input_dir),
+                    "--output-dir",
+                    str(output_dir),
+                ],
+            )
 
             assert result.exit_code != 0

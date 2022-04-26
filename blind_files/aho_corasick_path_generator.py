@@ -16,7 +16,7 @@ class AhoCorasickPathGenerator:
         self.dest_dirs = set()
 
     def blind_path(self, path):
-        out = ''
+        out = ""
         idx = 0
         for end_position, (length, mapped) in self.automaton.iter(path):
             end_idx = end_position + 1
@@ -43,7 +43,4 @@ class AhoCorasickPathGenerator:
 
     @property
     def init_lines(self):
-        return "\n".join(
-            f'mkdir -p "{dest_dir}"'
-            for dest_dir in self.dest_dirs
-        ) + "\n"
+        return "\n".join(f'mkdir -p "{dest_dir}"' for dest_dir in self.dest_dirs) + "\n"

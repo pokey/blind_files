@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Console script for blind_files.
 
@@ -21,9 +19,9 @@ from blind_files.identifier_mapper import IdentifierMapper
 
 @click.command()
 @click.option(
-    '--key',
-    '-k',
-    default='key',
+    "--key",
+    "-k",
+    default="key",
     help=(
         "Key for hash algorithm.  Can be any string.  Different keys will "
         "produce different mappings."
@@ -31,52 +29,46 @@ from blind_files.identifier_mapper import IdentifierMapper
 )
 @click.option(
     "--input-dir",
-    '-i',
+    "-i",
     type=click.Path(exists=True, file_okay=False),
     required=True,
 )
 @click.option(
     "--output-dir",
-    '-o',
+    "-o",
     type=click.Path(file_okay=False),
     required=True,
 )
 @click.option(
     "--mapping-dir",
-    '-m',
+    "-m",
     type=click.Path(file_okay=False),
     required=True,
     help="Directory to store the mapping csv and blind / unblind scripts.",
 )
 @click.option(
-    '--mode',
-    '-x',
+    "--mode",
+    "-x",
     required=True,
-    type=click.Choice(['identifiers', 'delimiter']),
+    type=click.Choice(["identifiers", "delimiter"]),
     help=(
         "Whether to recursively replace a fixed set of identifiers, or to "
         "replace all text before some delimiter in a flat set of files."
-    )
+    ),
 )
 @click.option(
-    '--delimiter',
-    '-d',
+    "--delimiter",
+    "-d",
     default=None,
 )
 @click.option(
-    '--identifiers',
-    '-t',
-    type=click.File('r'),
-    default='-',
+    "--identifiers",
+    "-t",
+    type=click.File("r"),
+    default="-",
     help="The identifiers to be blinded when they occur in any path.",
 )
-def main(key,
-         input_dir,
-         output_dir,
-         mapping_dir,
-         mode,
-         delimiter,
-         identifiers):
+def main(key, input_dir, output_dir, mapping_dir, mode, delimiter, identifiers):
     """Generate a mapping and bash script to blind files."""
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
@@ -84,7 +76,7 @@ def main(key,
     mapping_dir = Path(mapping_dir)
     mapping_dir.mkdir(parents=True, exist_ok=True)
 
-    if mode == 'identifiers':
+    if mode == "identifiers":
         identifiers = [identifier.strip() for identifier in identifiers]
 
         for identifier1, identifier2 in permutations(identifiers, 2):
@@ -93,39 +85,30 @@ def main(key,
                     f"{identifier1} is a substring of {identifier2}"
                 )
 
-    elif mode == 'delimiter':
+    elif mode == "delimiter":
         if not delimiter:
             raise click.UsageException("Must specify a delimiter")
 
-    mapping_path = mapping_dir / 'mapping.csv'
+    mapping_path = mapping_dir / "mapping.csv"
     if mapping_path.exists():
         with open(mapping_path) as mapping_file:
             mapping_reader = csv.reader(mapping_file)
             next(mapping_reader)
-            mapping = {
-                original: mapped
-                for original, mapped in mapping_reader
-            }
+            mapping = {original: mapped for original, mapped in mapping_reader}
     else:
         mapping = {}
 
     identifier_mapper = IdentifierMapper(key)
 
-    reverse_mapping = {
-        mapped: original
-        for original, mapped in mapping.items()
-    }
+    reverse_mapping = {mapped: original for original, mapped in mapping.items()}
 
-    blind_script = ''
-    unblind_script = ''
+    blind_script = ""
+    unblind_script = ""
 
-    if mode == 'delimiter':
+    if mode == "delimiter":
         path_generator = DelimiterPathGenerator(identifier_mapper, delimiter)
     else:
-        path_generator = AhoCorasickPathGenerator(
-            identifier_mapper,
-            identifiers
-        )
+        path_generator = AhoCorasickPathGenerator(identifier_mapper, identifiers)
 
     for source_path, dest_path in path_generator(input_dir, output_dir):
         blind_script += f'mv "{source_path}" "{dest_path}"\n'
@@ -144,21 +127,18 @@ def main(key,
                 f"'{mapping[identifier]}'"
             )
 
-    with open(mapping_dir / 'blind.sh', 'a') as out:
+    with open(mapping_dir / "blind.sh", "a") as out:
         out.write(path_generator.init_lines)
         out.write(blind_script)
-    with open(mapping_dir / 'unblind.sh', 'a') as out:
+    with open(mapping_dir / "unblind.sh", "a") as out:
         out.write(unblind_script)
 
-    with open(mapping_dir / 'mapping.csv', 'w') as mapping_file:
+    with open(mapping_dir / "mapping.csv", "w") as mapping_file:
         mapping_writer = csv.writer(mapping_file)
-        mapping_writer.writerow(['original', 'blinded'])
+        mapping_writer.writerow(["original", "blinded"])
 
         for identifier, mapped in sorted(mapping.items()):
-            mapping_writer.writerow([
-                identifier,
-                mapped
-            ])
+            mapping_writer.writerow([identifier, mapped])
 
 
 if __name__ == "__main__":

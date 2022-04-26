@@ -11,6 +11,7 @@ def load_noun_list():
 
     return [line.strip() for line in data.decode("utf-8").splitlines()]
 
+
 class IdentifierMapper:
     def __init__(self, key):
         self.key = key
@@ -19,10 +20,10 @@ class IdentifierMapper:
 
     def __call__(self, identifier):
         hash_value = blake2b(
-            identifier.encode('utf-8'),
+            identifier.encode("utf-8"),
             digest_size=3,
             key=self.key.encode(),
         ).digest()
-        index = int.from_bytes(hash_value, byteorder='big')
+        index = int.from_bytes(hash_value, byteorder="big")
         noun_pair = self.noun_pairs[index]
-        return '_'.join(noun_pair)
+        return "_".join(noun_pair)

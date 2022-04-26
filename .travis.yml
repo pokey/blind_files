@@ -9,8 +9,8 @@ deploy:
   distributions: sdist bdist_wheel
   user: pokey
 env:
-- TOXENV=py36
-- TOXENV=flake8
+  - TOXENV=py36
+  - TOXENV=flake8
 install: pip install -U tox
 language: python
 python: 3.6

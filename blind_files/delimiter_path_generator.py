@@ -6,7 +6,7 @@ class DelimiterPathGenerator:
         self.identifier_mapper = identifier_mapper
         self.delimiter = delimiter
         self.identifiers = set()
-        self.init_lines = ''
+        self.init_lines = ""
 
     def __call__(self, input_dir, output_dir):
         for file in input_dir.iterdir():
